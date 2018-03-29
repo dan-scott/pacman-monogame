@@ -9,8 +9,8 @@ namespace Pacman
     {
 
         private const int TILE_SIZE = 20;
-        private const int OFFSET_X = 120;
-        private const int OFFSET_Y = 100;
+        public const int OFFSET_X = 120;
+        public const int OFFSET_Y = 100;
 
         public int Width { get; private set; }
         public int Height { get; private set; }

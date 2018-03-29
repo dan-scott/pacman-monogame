@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>4bd905fc-a768-4bc2-bbb2-9ec22104f38b</ProjectGuid>
+    <ProjectGuid>{4BD905FC-A768-4BC2-BBB2-9EC22104F38B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Pacman</RootNamespace>
@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Level.cs" />
     <Compile Include="PacmanGame.cs" />
+    <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

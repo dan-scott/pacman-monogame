@@ -12,6 +12,7 @@ namespace Pacman
         GraphicsDeviceManager _graphics;
         SpriteBatch _spriteBatch;
         private Level _level;
+        private Player _player;
 
         public PacmanGame()
         {
@@ -34,6 +35,8 @@ namespace Pacman
             base.Initialize();
             
             _level = new Level(GraphicsDevice);
+
+            _player = new Player(GraphicsDevice);
         }
 
         /// <summary>
@@ -67,9 +70,36 @@ namespace Pacman
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            HandleInput();
+
+            _player.Update(gameTime);
 
             base.Update(gameTime);
+        }
+
+        private void HandleInput()
+        {
+            var state = Keyboard.GetState();
+
+            if (state.IsKeyDown(Keys.Up))
+            {
+                _player.SetDirection(Direction.Up);
+            } 
+            
+            if (state.IsKeyDown(Keys.Down))
+            {
+                _player.SetDirection(Direction.Down);
+            }
+
+            if (state.IsKeyDown(Keys.Left))
+            {
+                _player.SetDirection(Direction.Left);
+            }
+
+            if (state.IsKeyDown(Keys.Right))
+            {
+                _player.SetDirection(Direction.Right);
+            }
         }
 
         /// <summary>
@@ -83,6 +113,8 @@ namespace Pacman
             _spriteBatch.Begin();
 
             _level.Render(_spriteBatch);
+
+            _player.Render(gameTime, _spriteBatch);
 
             _spriteBatch.End();
 
