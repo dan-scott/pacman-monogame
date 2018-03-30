@@ -2,14 +2,12 @@
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 
 namespace Pacman
 {
     public class Player
     {
-
-        private const int SIZE = 40;
-        private const int HALF_SIZE = SIZE / 2;
 
         private const int SPEED = 50;
         
@@ -18,21 +16,13 @@ namespace Pacman
         private Vector2 _direction;
         private Vector2 _position;
 
-        private readonly Texture2D _playerSprite;
-
         public Direction Direction { get; private set; }
 
-        public Player(GraphicsDevice graphicsDevice)
+        public Player()
         {
-            _playerSprite = new Texture2D(graphicsDevice, SIZE, SIZE);
-            
-            var color = Enumerable.Range(1, SIZE * SIZE).Select(_ => Color.White).ToArray();
-
-            _playerSprite.SetData(color);
-
             _position = new Vector2(20 * 14, 20 * 23 + 10);
 
-            _offset = new Vector2(Level.OFFSET_X - HALF_SIZE, Level.OFFSET_Y - HALF_SIZE);
+            _offset = new Vector2(Level.OFFSET_X, Level.OFFSET_Y);
 
             SetDirection(Direction.Stopped);
         }
@@ -45,7 +35,7 @@ namespace Pacman
 
         public void Render(GameTime time, SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(_playerSprite, _position + _offset, Color.Yellow);
+            spriteBatch.DrawCircle(_position + _offset, 15, 12, Color.Yellow, 9);
         }
 
         public void SetDirection(Direction newDirection)

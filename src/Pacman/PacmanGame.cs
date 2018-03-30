@@ -34,9 +34,12 @@ namespace Pacman
 
             base.Initialize();
             
-            _level = new Level(GraphicsDevice);
+            GameServices.AddService(GraphicsDevice);
+            GameServices.AddService(Content);
+            
+            _level = new Level();
 
-            _player = new Player(GraphicsDevice);
+            _player = new Player();
         }
 
         /// <summary>
