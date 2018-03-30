@@ -21,6 +21,8 @@ namespace Pacman
 
         private List<PathNode> GenerateNodes(TileGrid grid)
         {
+            var bounds = grid.GetBounds();
+
             var nodes = new List<PathNode>();
 
             var nodeStack = new Stack<(Vector2 dir, PathNode node)>();
@@ -42,23 +44,56 @@ namespace Pacman
 
                 var tilePos = node.Position;
 
+                bool isEdgeTile;
+                bool isPortalTile;
                 do
                 {
                     tilePos += dir;
-                } while (IsEdgeTile(tilePos, dir));
+                    isPortalTile = IsPortalTile(tilePos, dir);
+                    isEdgeTile = !isPortalTile && IsEdgeTile(tilePos, dir);
+                } while (!isPortalTile && isEdgeTile);
 
-                if (nodes.Any(x => x.At(tilePos)))
+                var nextNode = nodes.FirstOrDefault(x => x.At(tilePos));
+
+                if (nextNode == null)
                 {
-                    continue;
+                    nextNode = new PathNode(tilePos);
+                    nodes.Add(nextNode);
                 }
-
-                var nextNode = new PathNode(tilePos);
-
-                nodes.Add(nextNode);
 
                 node.AddEdgeTo(nextNode, dir);
 
                 PushToStack(nextNode, dir);
+
+                if (isPortalTile)
+                {
+                    var portalTile = tilePos + dir;
+
+                    if (portalTile.X < bounds.Left)
+                    {
+                        portalTile.X = bounds.Right - 1;
+                    } 
+                    else if (portalTile.X >= bounds.Right)
+                    {
+                        portalTile.X = bounds.Left;
+                    }
+                    else if (portalTile.Y < bounds.Top)
+                    {
+                        portalTile.Y = bounds.Bottom - 1;
+                    } 
+                    else if (portalTile.Y >= bounds.Bottom)
+                    {
+                        portalTile.Y = bounds.Top;
+                    }
+
+                    var portalNode = new PathNode(portalTile);
+
+                    nextNode.AddPortalTo(portalNode, dir);
+
+                    nodes.Add(portalNode);
+
+                    PushToStack(portalNode, dir);
+                }
             }
 
             return nodes;
@@ -71,6 +106,12 @@ namespace Pacman
                     .Where(x => x.tile != LevelTile.None && x.dir != reverse)
                     .ToList()
                     .ForEach(x => nodeStack.Push((x.dir, node)));
+            }
+
+            bool IsPortalTile(Vector2 pos, Vector2 dir)
+            {
+                var nextPos = pos + dir;
+                return bounds.Contains(pos) && !bounds.Contains(nextPos);
             }
 
             bool IsEdgeTile(Vector2 tilePos, Vector2 dir)

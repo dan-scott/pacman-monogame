@@ -22,9 +22,9 @@ namespace Pacman
             _tiles = new Dictionary<Vector2, LevelTile>();
         }
 
-        private TileGrid(IEnumerable<KeyValuePair<Vector2, LevelTile>> tiles)
+        private TileGrid(Dictionary<Vector2, LevelTile> tiles)
         {
-            _tiles = tiles.ToDictionary(x => x.Key, x => x.Value);
+            _tiles = tiles;
         }
 
         public LevelTile this[int x, int y]
@@ -65,18 +65,20 @@ namespace Pacman
             var bottomX = (int) _tiles.Keys.Max(pos => pos.X);
             var bottomY = (int) _tiles.Keys.Max(pos => pos.Y);
 
-            return new Rectangle(topX, topY, bottomX - topX, bottomY - topY);
+            return new Rectangle(topX, topY, bottomX - topX + 1, bottomY - topY + 1);
         }
 
         public IEnumerable<(Vector2, LevelTile)> ToScreenSpace(int tileSize)
         {
             var tileSizeVector = new Vector2(tileSize);
             var tileOffsetVector = new Vector2((float) tileSize / 2);
-            return _tiles.Select(kvp => (kvp.Key * tileSizeVector - tileOffsetVector, kvp.Value));
+            return _tiles
+                .Where(x => x.Value != LevelTile.None)
+                .Select(kvp => (kvp.Key * tileSizeVector - tileOffsetVector, kvp.Value));
         }
 
         public TileGrid Filter(params LevelTile[] types) 
-            => new TileGrid(_tiles.Where(x => types.Contains(x.Value)));
+            => new TileGrid(_tiles.ToDictionary(x => x.Key, x => types.Contains(x.Value) ? x.Value : LevelTile.None));
 
         public TileGrid Map(Func<LevelTile, LevelTile> mapper) 
             => new TileGrid(_tiles.ToDictionary(x => x.Key, x => mapper(x.Value)));

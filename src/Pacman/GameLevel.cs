@@ -23,14 +23,18 @@ namespace Pacman
 
         private readonly TileGrid _walls;
         private readonly TileGrid _dots;
-        private readonly int _tileSize;
+        private readonly int _tileSideSize;
         private readonly LevelNavigator _navigator;
+        private readonly Vector2 _tileSizeVector;
+        private readonly Size2 _tileSize;
 
-        public GameLevel(int tileSize)
+        public GameLevel(int tileSideSize)
         {
             var loader = LevelLoader.LoadDefaultLevel();
 
-            _tileSize = tileSize;
+            _tileSideSize = tileSideSize;
+            _tileSize = new Size2(tileSideSize, tileSideSize);
+            _tileSizeVector = new Vector2(tileSideSize);
             _walls = loader.Walls;
             _dots = loader.Dots;
             _navigator = loader.Navigator;
@@ -38,19 +42,34 @@ namespace Pacman
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            foreach (var (position, tile) in _walls.ToScreenSpace(_tileSize))
+            foreach (var (position, tile) in _walls.ToScreenSpace(_tileSideSize))
             {
-                spriteBatch.DrawRectangle(position, new Size2(_tileSize, _tileSize), TileColors[tile], _tileSize);
+                spriteBatch.DrawRectangle(position, _tileSize, TileColors[tile], _tileSideSize);
             }
 
-            foreach (var (position, tile) in _dots.ToScreenSpace(_tileSize))
+            foreach (var (position, tile) in _dots.ToScreenSpace(_tileSideSize))
             {
-                spriteBatch.DrawRectangle(position, new Size2(_tileSize, _tileSize), TileColors[tile], _tileSize);
+                spriteBatch.DrawRectangle(position, _tileSize, TileColors[tile], _tileSideSize);
             }
 
             foreach (var navigatorNode in _navigator.Nodes)
             {
-                spriteBatch.DrawCircle(navigatorNode.Position * new Vector2(_tileSize), 5, 10, Color.Red, 5);
+                spriteBatch.DrawCircle(navigatorNode.Position * _tileSizeVector, 5, 10, Color.Red, 5);
+                foreach (var edge in navigatorNode.Edges)
+                {
+                    var start = edge.Start.Position * _tileSizeVector;
+                    var end = edge.End.Position * _tileSizeVector;
+                    if (edge.IsPortal)
+                    {
+                        var radius = Vector2.Distance(start, end) / 2;
+                        var midPoint = Vector2.Normalize(start - end) * new Vector2(radius) + end;
+                        spriteBatch.DrawCircle(midPoint, radius, 20, Color.DarkGreen, 1);
+                    }
+                    else
+                    {
+                        spriteBatch.DrawLine(start, end, Color.Green, 2);
+                    }
+                }
             }
         }
 
