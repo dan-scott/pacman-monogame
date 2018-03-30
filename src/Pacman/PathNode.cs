@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 
 namespace Pacman
@@ -6,75 +8,27 @@ namespace Pacman
     public class PathNode
     {
         public Vector2 Position { get; }
-        public PathEdge Up { get; private set; }
-        public PathEdge Down { get; private set; }
-        public PathEdge Left { get; private set; }
-        public PathEdge Right { get; private set; }
+
+        private readonly Dictionary<Vector2, PathEdge> _edges;
 
         public PathNode(Vector2 pos)
         {
             Position = pos;
+            _edges = new Dictionary<Vector2, PathEdge>();
         }
 
-        public void AddPortalTo(PathNode node, Direction dir)
+        public PathEdge this[Vector2 direction]
         {
-            var edge = new PathEdge(0, this, node, true);
-
-            switch (dir)
-            {
-                case Direction.Up:
-                    Up = edge;
-                    break;
-                case Direction.Down:
-                    Down = edge;
-                    break;
-                case Direction.Left:
-                    Left = edge;
-                    break;
-                case Direction.Right:
-                    Right = edge;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(dir), dir, null);
-            }
+            get => _edges.TryGetValue(direction, out var edge) ? edge : null;
+            private set => _edges[direction] = value;
         }
 
-        public void AddEdgeTo(PathNode node)
+        public void AddEdgeTo(PathNode node, Vector2 direction)
         {
             var diff = Position - node.Position;
-            var diffX = (int)diff.X;
-            var diffY = (int) diff.Y;
-
-            if (diffX != 0 && diffY != 0)
-            {
-                Console.WriteLine("Non perpendicular edges cannot be added");
-                return;
-            }
-
-            if (diffX == 0 && diffY == 0)
-            {
-                Console.WriteLine("Attempted to add the same node as an edge");
-                return;
-            }
-
-            if (diffX < 0)
-            {
-                Right = new PathEdge(Math.Abs(diffX), this, node);
-                node.Left = new PathEdge(Math.Abs(diffX), node, this);
-            } 
-            else if (diffX > 0)
-            {
-                Left = new PathEdge(diffX, this, node);
-                node.Right = new PathEdge(diffX, node, this);
-            } else if (diffY < 0)
-            {
-                Down = new PathEdge(Math.Abs(diffY), this, node);
-                node.Up = new PathEdge(Math.Abs(diffY), node, this);
-            } else if (diffY > 0)
-            {
-                Up = new PathEdge(diffY, this, node);
-                node.Down = new PathEdge(diffY, node, this);
-            }
+            var length = (int)Math.Max(Math.Abs(diff.X), Math.Abs(diff.Y));
+            this[direction] = new PathEdge(length, this, node);
+            node[Vector2.Negate(direction)] = new PathEdge(length, node, this);
         }
 
         public bool At(Vector2 tilePos)
@@ -84,12 +38,8 @@ namespace Pacman
 
         public override string ToString()
         {
-            var s = $"{Position.X}:{Position.Y}";
-            s += Up == null ? " " : "U";
-            s += Down == null ? " " : "D";
-            s += Left == null ? " " : "L";
-            s += Right == null ? " " : "R";
-
+            var s = Position + " - ";
+            s += string.Join(";", _edges.Values.Select(e => e.End.Position.ToString()));
             return s;
 
         }

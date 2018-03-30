@@ -13,7 +13,7 @@ namespace Pacman
         [STAThread]
         static void Main()
         {
-            using (var game = new PacmanGame())
+            using (var game = new GameMain())
                 game.Run();
         }
     }

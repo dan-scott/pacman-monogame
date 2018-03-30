@@ -1,11 +1,15 @@
 ﻿namespace Pacman
 {
-    internal enum LevelTile
+    public enum LevelTile
     {
-        Empty,
+        None,
+        Start,
+        Path,
         Dot,
         PowerPellet,
         Wall,
         MonsterWall,
+        MonsterEntrance,
+        MonsterSpawn
     }
 }
