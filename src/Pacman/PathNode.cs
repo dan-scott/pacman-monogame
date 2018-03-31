@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 
@@ -28,14 +27,18 @@ namespace Pacman
         public void AddEdgeTo(PathNode node, Vector2 direction)
         {
             var length = (int)Vector2.Distance(Position, node.Position);
-            this[direction] = new PathEdge(length, this, node);
-            node[Vector2.Negate(direction)] = new PathEdge(length, node, this);
+            this[direction] = new PathEdge(length, this, node, direction);
+
+            var reverse = Vector2.Negate(direction);
+            node[reverse] = new PathEdge(length, node, this, reverse);
         }
 
         public void AddPortalTo(PathNode portalNode, Vector2 direction)
         {
-            this[direction] = new PathEdge(0, this, portalNode, true);
-            portalNode[Vector2.Negate(direction)] = new PathEdge(0, portalNode, this, true);
+            this[direction] = new PathEdge(0, this, portalNode,direction, true);
+
+            var reverse = Vector2.Negate(direction);
+            portalNode[reverse] = new PathEdge(0, portalNode, this, reverse, true);
         }
 
         public bool At(Vector2 tilePos)

@@ -46,12 +46,14 @@ namespace Pacman
 
                 bool isEdgeTile;
                 bool isPortalTile;
+                bool reachedExistingTile;
                 do
                 {
                     tilePos += dir;
-                    isPortalTile = IsPortalTile(tilePos, dir);
-                    isEdgeTile = !isPortalTile && IsEdgeTile(tilePos, dir);
-                } while (!isPortalTile && isEdgeTile);
+                    reachedExistingTile = nodes.Any(x => x.At(tilePos));
+                    isPortalTile = !reachedExistingTile && IsPortalTile(tilePos, dir);
+                    isEdgeTile = !reachedExistingTile && !isPortalTile && IsEdgeTile(tilePos, dir);
+                } while (!reachedExistingTile && !isPortalTile && isEdgeTile);
 
                 var nextNode = nodes.FirstOrDefault(x => x.At(tilePos));
 

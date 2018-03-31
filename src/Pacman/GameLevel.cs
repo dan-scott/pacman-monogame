@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 
 namespace Pacman
 {
-
     public class GameLevel
     {
         private static readonly Dictionary<LevelTile, Color> TileColors = new Dictionary<LevelTile, Color>
         {
             [LevelTile.Path] = Color.Black,
-            [LevelTile.Dot] = Color.Yellow,
+            [LevelTile.Dot] = Color.DarkGray,
             [LevelTile.MonsterEntrance] = Color.Blue,
             [LevelTile.MonsterSpawn] = Color.Black,
             [LevelTile.MonsterWall] = Color.Blue,
@@ -27,6 +27,7 @@ namespace Pacman
         private readonly LevelNavigator _navigator;
         private readonly Vector2 _tileSizeVector;
         private readonly Size2 _tileSize;
+        private readonly Player _player;
 
         public GameLevel(int tileSideSize)
         {
@@ -38,6 +39,9 @@ namespace Pacman
             _walls = loader.Walls;
             _dots = loader.Dots;
             _navigator = loader.Navigator;
+            _player = new Player();
+            var start = _navigator.Nodes.First();
+            _player.Reset(start.Position, start.Edges.First());
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -54,28 +58,31 @@ namespace Pacman
 
             foreach (var navigatorNode in _navigator.Nodes)
             {
-                spriteBatch.DrawCircle(navigatorNode.Position * _tileSizeVector, 5, 10, Color.Red, 5);
-                foreach (var edge in navigatorNode.Edges)
+                spriteBatch.DrawCircle(navigatorNode.Position * _tileSizeVector, 5, 10, Color.Red);
+                foreach (var edge in navigatorNode.Edges.Where(x => !x.IsPortal))
                 {
                     var start = edge.Start.Position * _tileSizeVector;
                     var end = edge.End.Position * _tileSizeVector;
-                    if (edge.IsPortal)
-                    {
-                        var radius = Vector2.Distance(start, end) / 2;
-                        var midPoint = Vector2.Normalize(start - end) * new Vector2(radius) + end;
-                        spriteBatch.DrawCircle(midPoint, radius, 20, Color.DarkGreen, 1);
-                    }
-                    else
-                    {
-                        spriteBatch.DrawLine(start, end, Color.Green, 2);
-                    }
+                    spriteBatch.DrawLine(start, end, Color.Green, 2);
                 }
             }
+
+            _player.Draw(spriteBatch, _tileSizeVector);
         }
 
         public void Update(GameTime gameTime)
         {
+            _player.Update(gameTime);
+        }
+
+        public void LoadContent()
+        {
+            _player.LoadContent();
+        }
+
+        public void UnloadContent()
+        {
+            _player.UnloadContent();
         }
     }
-
 }

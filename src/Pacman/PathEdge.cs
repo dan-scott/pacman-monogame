@@ -1,4 +1,6 @@
-﻿namespace Pacman
+﻿using Microsoft.Xna.Framework;
+
+namespace Pacman
 {
     public class PathEdge
     {
@@ -8,12 +10,15 @@
         public PathNode Start { get; }
         public PathNode End { get; }
 
-        public PathEdge(int length, PathNode start, PathNode end, bool isPortal = false)
+        public Vector2 Direction { get; }
+
+        public PathEdge(int length, PathNode start, PathNode end, Vector2 direction, bool isPortal = false)
         {
             Length = length;
             Start = start;
             End = end;
             IsPortal = isPortal;
+            Direction = direction;
         }
 
     }

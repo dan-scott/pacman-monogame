@@ -7,12 +7,7 @@ namespace Pacman
 {
     public class TileGrid
     {
-        private static readonly Vector2 DirUp = new Vector2(0, -1);
-        private static readonly Vector2 DirRight = new Vector2(1, 0);
-        private static readonly Vector2 DirDown = new Vector2(0, 1);
-        private static readonly Vector2 DirLeft = new Vector2(-1, 0);
-
-        private static readonly Vector2[] AdjacencyDirections = { DirDown, DirLeft, DirRight, DirUp};
+        private static readonly Vector2[] AdjacencyDirections = {Directions.Down, Directions.Left, Directions.Right, Directions.Up};
 
         private readonly Dictionary<Vector2, LevelTile> _tiles;
 
