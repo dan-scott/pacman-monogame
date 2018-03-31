@@ -21,13 +21,13 @@ namespace Pacman
             [LevelTile.Wall] = Color.Blue,
         };
 
-        private readonly TileGrid _walls;
         private readonly TileGrid _dots;
         private readonly int _tileSideSize;
         private readonly LevelNavigator _navigator;
         private readonly Vector2 _tileSizeVector;
         private readonly Size2 _tileSize;
         private readonly Player _player;
+        private readonly SpriteGrid _spriteGrid;
 
         public GameLevel(int tileSideSize)
         {
@@ -36,24 +36,24 @@ namespace Pacman
             _tileSideSize = tileSideSize;
             _tileSize = new Size2(tileSideSize, tileSideSize);
             _tileSizeVector = new Vector2(tileSideSize);
-            _walls = loader.Walls;
             _dots = loader.Dots;
             _navigator = loader.Navigator;
             _player = new Player();
             var start = _navigator.Nodes.First();
             _player.Reset(start.Position, start.Edges.First());
+
+            _spriteGrid = loader.Sprites;
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            foreach (var (position, tile) in _walls.ToScreenSpace(_tileSideSize))
-            {
-                spriteBatch.DrawRectangle(position, _tileSize, TileColors[tile], _tileSideSize);
-            }
+            _spriteGrid.Draw(spriteBatch);
+
 
             foreach (var (position, tile) in _dots.ToScreenSpace(_tileSideSize))
             {
-                spriteBatch.DrawRectangle(position, _tileSize, TileColors[tile], _tileSideSize);
+                var radius = tile == LevelTile.Dot ? 4 : 10;
+                spriteBatch.DrawCircle(position + _tileSizeVector / 2, radius, 10, Color.Yellow, radius);
             }
 
             foreach (var navigatorNode in _navigator.Nodes)
@@ -68,6 +68,7 @@ namespace Pacman
             }
 
             _player.Draw(spriteBatch, _tileSizeVector);
+
         }
 
         public void Update(GameTime gameTime)
@@ -78,6 +79,7 @@ namespace Pacman
         public void LoadContent()
         {
             _player.LoadContent();
+            _spriteGrid.LoadContent();
         }
 
         public void UnloadContent()

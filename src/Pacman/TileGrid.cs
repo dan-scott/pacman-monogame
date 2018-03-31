@@ -9,13 +9,43 @@ namespace Pacman
     {
         private static readonly Vector2[] AdjacencyDirections = {Directions.Down, Directions.Left, Directions.Right, Directions.Up};
 
+        private static readonly Dictionary<string,LevelTile> TileMap = new Dictionary<string, LevelTile>
+        {
+            ["  "] = LevelTile.Path,
+
+            ["**"] = LevelTile.Dot,
+
+            ["f3"] = LevelTile.MonsterEntrance,
+
+            ["||"] = LevelTile.MonsterSpawn,
+
+            ["e3"] = LevelTile.MonsterWall,
+            ["e4"] = LevelTile.MonsterWall,
+            ["f4"] = LevelTile.MonsterWall,
+            ["g2"] = LevelTile.MonsterWall,
+            ["g3"] = LevelTile.MonsterWall,
+            ["g4"] = LevelTile.MonsterWall,
+
+            ["++"] = LevelTile.PowerPellet,
+
+            ["@@"] = LevelTile.Start,
+        };
+
         private readonly Dictionary<Vector2, LevelTile> _tiles;
 
 
-        public TileGrid()
+        public TileGrid(IEnumerable<(Vector2, string)> tileCodes)
         {
-            _tiles = new Dictionary<Vector2, LevelTile>();
+            _tiles = GenTiles(tileCodes);
         }
+
+        private static Dictionary<Vector2, LevelTile> GenTiles(IEnumerable<(Vector2, string)> tileCodes)
+        {
+            return tileCodes.ToDictionary(x => x.Item1, x => ToTile(x.Item2));
+        }
+
+        private static LevelTile ToTile(string code)
+            => TileMap.TryGetValue(code, out var tile) ? tile : LevelTile.Wall;
 
         private TileGrid(Dictionary<Vector2, LevelTile> tiles)
         {

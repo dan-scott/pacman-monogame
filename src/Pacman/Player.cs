@@ -30,9 +30,9 @@ namespace Pacman
             var startPos = _currentEdge.Start.Position * tileSizeVector;
             var endPos = _currentEdge.End.Position * tileSizeVector;
 
-            spriteBatch.DrawCircle(startPos, 10, 4, Color.Pink, 5);
-            spriteBatch.DrawCircle(endPos, 10, 4, Color.Blue, 5);
-            spriteBatch.DrawLine(startPos, endPos, Color.Yellow, 4);
+            spriteBatch.DrawCircle(startPos, 10, 4, Color.Blue, 5);
+            spriteBatch.DrawCircle(endPos, 10, 4, Color.PaleGoldenrod, 5);
+            spriteBatch.DrawLine(startPos, endPos, Color.DarkGray, 2);
         }
 
         public void Update(GameTime gameTime)

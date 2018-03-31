@@ -1,42 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.Xna.Framework;
 
 namespace Pacman
 {
     public class LevelLoader
     {
-        private const string DEFAULT_MAZE = @"
-0000000000000000000000000000
-0************00************0
-0*0000*00000*00*00000*0000*0
-0+0  0*0   0*00*0   0*0  0+0
-0*0000*00000*00*00000*0000*0
-0**************************0
-0*0000*00*00000000*00*0000*0
-0*0000*00*00000000*00*0000*0
-0******00****00****00******0
-000000*00000 00 00000*000000
-     0*00          00*0     
-     0*00 ###--### 00*0     
-     0*00 #||||||# 00*0     
-000000*00 #|    |# 00*000000
-      *   #|    |#   *      
-000000*00 #||||||# 00*000000
-     0*00 ######## 00*0     
-     0*00          00*0     
-     0*00 00000000 00*0     
-000000*00 00000000 00*000000
-0************00************0
-0*0000*00000*00*00000*0000*0
-0*0000*00000*00*00000*0000*0
-0+**00*******@********00**+0
-000*00*00*00000000*00*00*000
-000*00*00*00000000*00*00*000
-0******00****00****00******0
-0*0000000000*00*0000000000*0
-0*0000000000*00*0000000000*0
-0**************************0
-0000000000000000000000000000
-";
 
         private static readonly Dictionary<char,LevelTile> TileMap = new Dictionary<char, LevelTile>
         {
@@ -55,8 +26,8 @@ namespace Pacman
 
         public int Height { get; set; }
 
+        public SpriteGrid Sprites { get; private set; }
         public TileGrid AllTiles { get; private set; }
-        public TileGrid Walls { get; private set; }
         public TileGrid Dots { get; private set; }
         public LevelNavigator Navigator { get; private set; }
 
@@ -69,16 +40,19 @@ namespace Pacman
         {
             var loader = new LevelLoader();
 
-            loader.Init(DEFAULT_MAZE);
+            loader.Init();
 
             return loader;
         }
 
-        private void Init(string defaultMaze)
+        private void Init()
         {
-            Parse(defaultMaze);
+            var tileCodes = LoadLevelTileCodes();
 
-            Walls = AllTiles.Filter(LevelTile.MonsterEntrance, LevelTile.MonsterWall, LevelTile.Wall);
+            AllTiles = new TileGrid(tileCodes);
+
+            Sprites = new SpriteGrid(tileCodes);
+
             Dots = AllTiles.Filter(LevelTile.PowerPellet, LevelTile.Dot);
 
             Navigator = new LevelNavigator(AllTiles);
@@ -86,30 +60,27 @@ namespace Pacman
 
 
 
-        private void Parse(string maze)
+        private List<(Vector2, string)> LoadLevelTileCodes()
         {
-            var lines = maze.Trim().Split('\n');
+            const string path = "Content\\level.txt";
 
-            Height = lines.Length;
-            Width = lines[0].Length;
+            var lines = File.ReadAllLines(path);
 
-            if (lines[0].EndsWith("\r"))
+            var tiles = new List<(Vector2, string)>();
+
+            for (var row = 0; row < lines.Length; row++)
             {
-                Width--;
-            }
-
-            AllTiles = new TileGrid();
-
-            for (var y = 0; y < Height; y++)
-            {
-                for (var x = 0; x < Width; x++)
+                var columns = lines[row].Split(',').Where(x => string.IsNullOrEmpty(x) == false).ToArray();
+                for (var col = 0; col < columns.Length; col++)
                 {
-                    AllTiles[x, y] = ToTile(lines[y][x]);
+                    var pos = new Vector2(col, row);
+                    tiles.Add((pos, columns[col]));
                 }
             }
+
+            return tiles;
         }
 
-        private static LevelTile ToTile(char c)
-            => TileMap.TryGetValue(c, out var tile) ? tile : LevelTile.None;
+
     }
 }
