@@ -28,6 +28,8 @@ namespace Pacman
         private readonly Size2 _tileSize;
         private readonly Player _player;
         private readonly SpriteGrid _spriteGrid;
+        private PathNode _nodeTo;
+        private List<Vector2> _directions;
 
         public GameLevel(int tileSideSize)
         {
@@ -43,37 +45,67 @@ namespace Pacman
             _player.Reset(start.Position, start.Edges.First());
 
             _spriteGrid = loader.Sprites;
+
+            _nodeTo = _navigator.Nodes.First();
+            _directions = new List<Vector2>();
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             _spriteGrid.Draw(spriteBatch);
 
+            DrawDots(spriteBatch);
 
-            foreach (var (position, tile) in _dots.ToScreenSpace(_tileSideSize))
-            {
-                var radius = tile == LevelTile.Dot ? 4 : 10;
-                spriteBatch.DrawCircle(position + _tileSizeVector / 2, radius, 10, Color.Yellow, radius);
-            }
+            DrawNavNodes(spriteBatch);
 
-            foreach (var navigatorNode in _navigator.Nodes)
-            {
-                spriteBatch.DrawCircle(navigatorNode.Position * _tileSizeVector, 5, 10, Color.Red);
-                foreach (var edge in navigatorNode.Edges.Where(x => !x.IsPortal))
-                {
-                    var start = edge.Start.Position * _tileSizeVector;
-                    var end = edge.End.Position * _tileSizeVector;
-                    spriteBatch.DrawLine(start, end, Color.Green, 2);
-                }
-            }
+            DrawPathInfo(spriteBatch);
 
             _player.Draw(spriteBatch, _tileSizeVector);
 
         }
 
+        private void DrawPathInfo(SpriteBatch spriteBatch)
+        {
+            var curreNode = _player.NextNode;
+            
+
+            foreach (var direction in _directions)
+            {
+                if (direction == Directions.Stopped)
+                {
+                    break;
+                }
+
+                var nextNode = curreNode[direction].End;
+                spriteBatch.DrawLine(curreNode.Position * _tileSizeVector, nextNode.Position * _tileSizeVector, Color.Green, 2);
+                curreNode = nextNode;
+            }
+
+            spriteBatch.DrawLine(_player.Position * _tileSizeVector, _player.NextNode.Position * _tileSizeVector, Color.Red, 2);
+
+        }
+
+        private void DrawNavNodes(SpriteBatch spriteBatch)
+        {
+            foreach (var navigatorNode in _navigator.Nodes)
+            {
+                spriteBatch.DrawCircle(navigatorNode.Position * _tileSizeVector, 5, 10, Color.Red);
+            }
+        }
+
+        private void DrawDots(SpriteBatch spriteBatch)
+        {
+            foreach (var (position, tile) in _dots.ToScreenSpace(_tileSideSize))
+            {
+                var radius = tile == LevelTile.Dot ? 4 : 10;
+                spriteBatch.DrawCircle(position + _tileSizeVector / 2, radius, 10, Color.Yellow, radius);
+            }
+        }
+
         public void Update(GameTime gameTime)
         {
             _player.Update(gameTime);
+            _directions = PathFinder.AStarSearch(_nodeTo, _player.NextNode);
         }
 
         public void LoadContent()

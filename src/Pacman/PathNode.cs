@@ -46,6 +46,9 @@ namespace Pacman
             return Position == tilePos;
         }
 
+        public Vector2 GetDirectionTo(PathNode end) 
+            => Edges.FirstOrDefault(x => x.End == end)?.Direction ?? Directions.Stopped;
+
         public override string ToString()
         {
             var s = Position + " - ";

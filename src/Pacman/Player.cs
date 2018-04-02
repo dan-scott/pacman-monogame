@@ -14,6 +14,9 @@ namespace Pacman
         private Vector2 _position;
         private PathEdge _currentEdge;
 
+        public PathNode NextNode => _currentEdge.End;
+        public Vector2 Position => _position;
+
         public void Reset(Vector2 startPos, PathEdge currentEdge)
         {
             _currentDirection = Directions.Stopped;
@@ -26,13 +29,6 @@ namespace Pacman
         {
             var pos = _position * tileSizeVector;
             spriteBatch.DrawCircle(pos, 10, 10, Color.Yellow, 10);
-
-            var startPos = _currentEdge.Start.Position * tileSizeVector;
-            var endPos = _currentEdge.End.Position * tileSizeVector;
-
-            spriteBatch.DrawCircle(startPos, 10, 4, Color.Blue, 5);
-            spriteBatch.DrawCircle(endPos, 10, 4, Color.PaleGoldenrod, 5);
-            spriteBatch.DrawLine(startPos, endPos, Color.DarkGray, 2);
         }
 
         public void Update(GameTime gameTime)
