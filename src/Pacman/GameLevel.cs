@@ -12,9 +12,9 @@ namespace Pacman
         {
             [LevelTile.Path] = Color.Black,
             [LevelTile.Dot] = Color.DarkGray,
-            [LevelTile.MonsterEntrance] = Color.Blue,
-            [LevelTile.MonsterSpawn] = Color.Black,
-            [LevelTile.MonsterWall] = Color.Blue,
+            [LevelTile.GhostEntrance] = Color.Blue,
+            [LevelTile.GhostSpawn] = Color.Black,
+            [LevelTile.GhostWall] = Color.Blue,
             [LevelTile.None] = Color.Black,
             [LevelTile.PowerPellet] = Color.Orange,
             [LevelTile.Start] = Color.Red,
@@ -23,31 +23,30 @@ namespace Pacman
 
         private readonly TileGrid _dots;
         private readonly int _tileSideSize;
-        private readonly LevelNavigator _navigator;
         private readonly Vector2 _tileSizeVector;
-        private readonly Size2 _tileSize;
         private readonly Player _player;
         private readonly SpriteGrid _spriteGrid;
-        private PathNode _nodeTo;
-        private List<Vector2> _directions;
+        private readonly LevelGraph _graph;
+        private Ghost _ghost;
 
         public GameLevel(int tileSideSize)
         {
             var loader = LevelLoader.LoadDefaultLevel();
 
             _tileSideSize = tileSideSize;
-            _tileSize = new Size2(tileSideSize, tileSideSize);
             _tileSizeVector = new Vector2(tileSideSize);
             _dots = loader.Dots;
-            _navigator = loader.Navigator;
-            _player = new Player();
-            var start = _navigator.Nodes.First();
-            _player.Reset(start.Position, start.Edges.First());
+            _graph = loader.Graph;
+            _player = new Player(_graph);
+            
+            _player.Reset(loader.AllTiles.Find(LevelTile.Start).First());
 
             _spriteGrid = loader.Sprites;
 
-            _nodeTo = _navigator.Nodes.First();
-            _directions = new List<Vector2>();
+            _ghost = new Ghost(_graph);
+
+            _ghost.Reset(loader.AllTiles.Find(LevelTile.GhostSpawn).First());
+
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -56,42 +55,12 @@ namespace Pacman
 
             DrawDots(spriteBatch);
 
-            DrawNavNodes(spriteBatch);
-
-            DrawPathInfo(spriteBatch);
-
             _player.Draw(spriteBatch, _tileSizeVector);
 
-        }
-
-        private void DrawPathInfo(SpriteBatch spriteBatch)
-        {
-            var curreNode = _player.NextNode;
-            
-
-            foreach (var direction in _directions)
-            {
-                if (direction == Directions.Stopped)
-                {
-                    break;
-                }
-
-                var nextNode = curreNode[direction].End;
-                spriteBatch.DrawLine(curreNode.Position * _tileSizeVector, nextNode.Position * _tileSizeVector, Color.Green, 2);
-                curreNode = nextNode;
-            }
-
-            spriteBatch.DrawLine(_player.Position * _tileSizeVector, _player.NextNode.Position * _tileSizeVector, Color.Red, 2);
+            _ghost.Draw(spriteBatch, _tileSizeVector);
 
         }
 
-        private void DrawNavNodes(SpriteBatch spriteBatch)
-        {
-            foreach (var navigatorNode in _navigator.Nodes)
-            {
-                spriteBatch.DrawCircle(navigatorNode.Position * _tileSizeVector, 5, 10, Color.Red);
-            }
-        }
 
         private void DrawDots(SpriteBatch spriteBatch)
         {
@@ -105,7 +74,7 @@ namespace Pacman
         public void Update(GameTime gameTime)
         {
             _player.Update(gameTime);
-            _directions = PathFinder.AStarSearch(_nodeTo, _player.NextNode);
+            _ghost.Update(gameTime, _player);
         }
 
         public void LoadContent()

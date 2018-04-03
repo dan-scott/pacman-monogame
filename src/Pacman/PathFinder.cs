@@ -7,14 +7,22 @@ using Microsoft.Xna.Framework;
 
 namespace Pacman
 {
-    public static class PathFinder
+    public class PathFinder
     {
-        public static List<Vector2> AStarSearch(PathNode start, PathNode end)
-        {
-            var cameFrom = new Dictionary<PathNode, PathNode>();
-            var costSoFar = new Dictionary<PathNode, float>();
+        private readonly LevelGraph _graph;
 
-            var frontier = new PriorityQueue();
+        public PathFinder(LevelGraph graph)
+        {
+            _graph = graph;
+        }
+
+        public List<Vector2> FindPath(Vector2 start, Vector2 end)
+        {
+            var cameFrom = new Dictionary<Vector2, Vector2>();
+
+            var costSoFar = new Dictionary<Vector2, float>();
+
+            var frontier = new PriorityQueue<Vector2>();
 
             frontier.Enqueue(start, 0);
 
@@ -24,69 +32,66 @@ namespace Pacman
             while (frontier.Count > 0)
             {
                 var current = frontier.Dequeue();
-
                 if (current == end)
                 {
                     break;
                 }
 
-                foreach (var edge in current.Edges)
+                foreach (var next in _graph.Adjacent(current))
                 {
-                    var newCost = costSoFar[current] + edge.Length;
-
-                    var next = edge.End;
+                    var newCost = costSoFar[current] + 1;
 
                     if (!costSoFar.ContainsKey(next) || newCost < costSoFar[next])
                     {
                         costSoFar[next] = newCost;
-                        var priority = newCost + Vector2.Distance(next.Position, end.Position);
+                        var priority = newCost + Vector2.Distance(next, end);
                         frontier.Enqueue(next, priority);
                         cameFrom[next] = current;
                     }
                 }
             }
 
-            return ToDirections(start, end, cameFrom);
+            return Path(start, end, cameFrom);
         }
 
-        private static List<Vector2> ToDirections(PathNode start, PathNode end, Dictionary<PathNode, PathNode> cameFrom)
+        private List<Vector2> Path(Vector2 start, Vector2 end, Dictionary<Vector2, Vector2> cameFrom)
         {
-            var dirList = new List<Vector2>();
+            var dirList = new List<Vector2> { end };
 
             var current = cameFrom[end];
 
-            dirList.Add(end.GetDirectionTo(current));
+            dirList.Add(current);
 
             while (current != start)
             {
-                var next = cameFrom[current];
-                dirList.Add(current.GetDirectionTo(next));
-                current = next;
+                current = cameFrom[current];
+                dirList.Add(current);
             }
+
+            dirList.Reverse();
 
             return dirList;
         }
 
-
-        private class PriorityQueue
+        private class PriorityQueue<T>
         {
-            private List<(float priority, PathNode node)> _nodes;
+            private List<(float priority, T node)> _nodes;
 
             public PriorityQueue()
             {
-                _nodes = new List<(float priority, PathNode node)>();
+                _nodes = new List<(float priority, T node)>();
             }
 
             public int Count => _nodes.Count;
 
-            public void Enqueue(PathNode node, float priority)
+            public void Enqueue(T node, float priority)
             {
                 _nodes.Add((priority, node));
 
                 _nodes = _nodes.OrderBy(x => x.priority).ToList();
             }
 
-            public PathNode Dequeue()
+            public T Dequeue()
             {
                 var last = _nodes.FirstOrDefault();
                 _nodes.Remove(last);

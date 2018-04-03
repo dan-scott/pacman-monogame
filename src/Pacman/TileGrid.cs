@@ -15,16 +15,16 @@ namespace Pacman
 
             ["**"] = LevelTile.Dot,
 
-            ["f3"] = LevelTile.MonsterEntrance,
+            ["f3"] = LevelTile.GhostEntrance,
 
-            ["||"] = LevelTile.MonsterSpawn,
+            ["||"] = LevelTile.GhostSpawn,
 
-            ["e3"] = LevelTile.MonsterWall,
-            ["e4"] = LevelTile.MonsterWall,
-            ["f4"] = LevelTile.MonsterWall,
-            ["g2"] = LevelTile.MonsterWall,
-            ["g3"] = LevelTile.MonsterWall,
-            ["g4"] = LevelTile.MonsterWall,
+            ["e3"] = LevelTile.GhostWall,
+            ["e4"] = LevelTile.GhostWall,
+            ["f4"] = LevelTile.GhostWall,
+            ["g2"] = LevelTile.GhostWall,
+            ["g3"] = LevelTile.GhostWall,
+            ["g4"] = LevelTile.GhostWall,
 
             ["++"] = LevelTile.PowerPellet,
 
@@ -100,6 +100,11 @@ namespace Pacman
             return _tiles
                 .Where(x => x.Value != LevelTile.None)
                 .Select(kvp => (kvp.Key * tileSizeVector - tileOffsetVector, kvp.Value));
+        }
+
+        public IEnumerable<(Vector2, LevelTile)> AsEnumerable()
+        {
+            return _tiles.Where(x => x.Value != LevelTile.None).Select(kvp => (kvp.Key, kvp.Value));
         }
 
         public TileGrid Filter(params LevelTile[] types) 

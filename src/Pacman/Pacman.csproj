@@ -47,12 +47,11 @@
     <Compile Include="GameMain.cs" />
     <Compile Include="GameServices.cs" />
     <Compile Include="GameLevel.cs" />
+    <Compile Include="Ghost.cs" />
+    <Compile Include="LevelGraph.cs" />
     <Compile Include="LevelLoader.cs" />
-    <Compile Include="LevelNavigator.cs" />
     <Compile Include="LevelTile.cs" />
-    <Compile Include="PathEdge.cs" />
     <Compile Include="PathFinder.cs" />
-    <Compile Include="PathNode.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

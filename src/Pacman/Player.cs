@@ -8,26 +8,30 @@ namespace Pacman
 {
     public class Player
     {
-        private const float PLAYER_SPEED = 8f;
+        private readonly LevelGraph _graph;
+        private const float SPEED = 8f;
         private Vector2 _currentDirection;
         private Vector2 _nextDirection;
-        private Vector2 _position;
-        private PathEdge _currentEdge;
+        private Vector2 _startPos;
+        public Vector2 Position { get; private set; }
+        public Vector2 Destination { get; private set; }
 
-        public PathNode NextNode => _currentEdge.End;
-        public Vector2 Position => _position;
+        public Player(LevelGraph graph)
+        {
+            _graph = graph;
+        }
 
-        public void Reset(Vector2 startPos, PathEdge currentEdge)
+
+        public void Reset(Vector2 startPos)
         {
             _currentDirection = Directions.Stopped;
             _nextDirection = Directions.Stopped;
-            _position = startPos;
-            _currentEdge = currentEdge;
+            Position = startPos;
         }
 
         public void Draw(SpriteBatch spriteBatch, Vector2 tileSizeVector)
         {
-            var pos = _position * tileSizeVector;
+            var pos = Position * tileSizeVector;
             spriteBatch.DrawCircle(pos, 10, 10, Color.Yellow, 10);
         }
 
@@ -48,44 +52,40 @@ namespace Pacman
             if (_nextDirection == Vector2.Negate(_currentDirection))
             {
                 _currentDirection = _nextDirection;
-                _currentEdge = _currentEdge.End[_currentDirection];
+                var tmp = _startPos;
+                _startPos = Destination;
+                Destination = tmp;
             }
 
-            var travelDistance = PLAYER_SPEED * gameTime.GetElapsedSeconds();
+            var travelDistance = SPEED * gameTime.GetElapsedSeconds();
 
-            var distanceToNextNode = Vector2.Distance(_currentEdge.End.Position, _position);
+            var remaining = Vector2.Distance(Position, Destination);
 
-            if (distanceToNextNode <= travelDistance)
+            if (travelDistance >= remaining)
             {
-                travelDistance -= distanceToNextNode;
+                travelDistance -= remaining;
 
-                PathEdge nextEdge;
+                Position = _startPos = Destination;
 
-                if ((nextEdge = _currentEdge.End[_nextDirection]) != null)
+                if (_graph.IsPortal(Position, _currentDirection))
                 {
-                    _position = nextEdge.Start.Position;
+                    Position = _startPos = _graph.PortalTo(Position, _currentDirection);
+                }
+                else if (_graph.HasAdjacent(Position, _nextDirection, true))
+                {
                     _currentDirection = _nextDirection;
-                    _currentEdge = nextEdge;
-                }
-                else if ((nextEdge = _currentEdge.End[_currentDirection]) != null)
+                } 
+                else if (!_graph.HasAdjacent(Position, _currentDirection, true))
                 {
-                    _position = nextEdge.Start.Position;
-                    _currentEdge = nextEdge;
+                    _currentDirection = _nextDirection = Directions.Stopped;
                 }
-                else
-                {
-                    _position = _currentEdge.End.Position;
-                    travelDistance = 0;
-                }
+
+                Destination = _startPos + _currentDirection;
+
             }
 
-            if (_currentEdge.IsPortal)
-            {
-                _currentEdge = _currentEdge.End[_currentDirection];
-                _position = _currentEdge.Start.Position;
-            }
 
-            _position += _currentDirection * new Vector2(travelDistance);
+            Position += _currentDirection * new Vector2(travelDistance);
         }
 
         private void HandleInput()
@@ -111,15 +111,13 @@ namespace Pacman
                 _nextDirection = Directions.Right;
             }
 
-            if (_currentDirection == Directions.Stopped)
-            {
-                var currentNode = _currentEdge.End.Position == _position ? _currentEdge.End : _currentEdge.Start;
-                if (currentNode[_nextDirection] != null)
-                {
-                    _currentDirection = _nextDirection;
-                    _currentEdge = currentNode[_currentDirection];
-                }
-            }
+            if (_currentDirection != Directions.Stopped) return;
+
+            if (!_graph.HasAdjacent(Position, _nextDirection, true)) return;
+
+            _currentDirection = _nextDirection;
+            _startPos = Position;
+            Destination = Position + _nextDirection;
         }
 
         public void LoadContent()

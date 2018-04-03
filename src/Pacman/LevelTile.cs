@@ -8,8 +8,8 @@
         Dot,
         PowerPellet,
         Wall,
-        MonsterWall,
-        MonsterEntrance,
-        MonsterSpawn
+        GhostWall,
+        GhostEntrance,
+        GhostSpawn
     }
 }

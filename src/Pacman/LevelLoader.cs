@@ -13,9 +13,9 @@ namespace Pacman
         {
             [' '] = LevelTile.Path,
             ['*'] = LevelTile.Dot,
-            ['-'] = LevelTile.MonsterEntrance,
-            ['|'] = LevelTile.MonsterSpawn,
-            ['#'] = LevelTile.MonsterWall,
+            ['-'] = LevelTile.GhostEntrance,
+            ['|'] = LevelTile.GhostSpawn,
+            ['#'] = LevelTile.GhostWall,
             ['+'] = LevelTile.PowerPellet,
             ['@'] = LevelTile.Start,
             ['0'] = LevelTile.Wall,
@@ -29,7 +29,7 @@ namespace Pacman
         public SpriteGrid Sprites { get; private set; }
         public TileGrid AllTiles { get; private set; }
         public TileGrid Dots { get; private set; }
-        public LevelNavigator Navigator { get; private set; }
+        public LevelGraph Graph { get; private set; }
 
 
         private LevelLoader()
@@ -55,7 +55,7 @@ namespace Pacman
 
             Dots = AllTiles.Filter(LevelTile.PowerPellet, LevelTile.Dot);
 
-            Navigator = new LevelNavigator(AllTiles);
+            Graph = new LevelGraph(AllTiles);
         }
 
 
