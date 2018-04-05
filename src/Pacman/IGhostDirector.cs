@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Pacman.Ghosts;
 
 namespace Pacman
 {

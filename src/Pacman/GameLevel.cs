@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using Pacman.Ghosts;
 
 namespace Pacman
 {
@@ -31,9 +32,9 @@ namespace Pacman
 
             _ghosts = new List<Ghost>
             {
-                new Ghost(graph, new RedGhostDirector(loader.AllTiles), Color.Red, 4),
-                new Ghost(graph, new PinkGhostDirector(loader.AllTiles, graph), Color.Pink, 3),
-                new Ghost(graph, new BlueGhostDirector(loader.AllTiles, graph), Color.Blue, 2)
+                new Ghost(graph, new RedGhostDirector(), Color.Red, 4),
+                new Ghost(graph, new PinkGhostDirector(graph), Color.Pink, 3),
+                new Ghost(graph, new BlueGhostDirector(graph), Color.Blue, 2)
             };
 
             _ghosts.ForEach(ghost => ghost.Reset());

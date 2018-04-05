@@ -16,14 +16,6 @@ namespace Pacman
             LevelTile.Dot,
             LevelTile.PowerPellet,
             LevelTile.Start,
-            LevelTile.GhostEntrance,
-            LevelTile.GhostSpawn,
-        };
-
-        private static readonly LevelTile[] GhostOnlyTypes =
-        {
-            LevelTile.GhostEntrance,
-            LevelTile.GhostSpawn,
         };
 
         private readonly TileGrid _pathGrid;
@@ -60,10 +52,10 @@ namespace Pacman
 
         public IEnumerable<Vector2> Adjacent(Vector2 node) => _nodes[node];
 
-        public bool HasAdjacent(Vector2 pos, Vector2 direction, bool playerMove)
+        public bool HasAdjacent(Vector2 pos, Vector2 direction)
         {
             var next = pos + direction;
-            return _nodes[pos].Any(x => x == next && (!playerMove || !GhostOnly(next)));
+            return _nodes[pos].Any(x => x == next);
         }
 
         public bool IsPortal(Vector2 pos, Vector2 direction)
@@ -88,8 +80,6 @@ namespace Pacman
                 ? new Vector2(pos.X, _bottomRight.Y) 
                 : new Vector2(pos.X, _topLeft.Y);
         }
-
-        private bool GhostOnly(Vector2 next) => GhostOnlyTypes.Contains(_pathGrid[next]);
 
         public Vector2 Closest(Vector2 target)
         {

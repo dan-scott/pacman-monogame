@@ -1,25 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 
-namespace Pacman
+namespace Pacman.Ghosts
 {
     public class Ghost
     {
-        private Vector2 _startPos;
         private Vector2 _target;
-        private List<Vector2> _path;
         private LevelGraph _graph;
         private readonly IGhostDirector _director;
         private readonly Color _color;
-        private readonly int _thickness;
-        private readonly PathFinder _pathFinder;
-        private int _currentPathStep;
         private const float SPEED = 8f;
 
         public Vector2 Position { get; private set; }
@@ -32,15 +23,12 @@ namespace Pacman
             _graph = graph;
             _director = director;
             _color = color;
-            _thickness = thickness;
-            _path = new List<Vector2>();
-            _pathFinder = new PathFinder(graph);
         }
 
 
         public void Reset()
         {
-            Position = _startPos = NextNode = _director.StartPos;
+            Position = NextNode = _director.StartPos;
             Direction = Directions.Stopped;
         }
 
@@ -48,27 +36,14 @@ namespace Pacman
         {
             var pos = Position * tileSizeVector;
             spriteBatch.DrawCircle(pos, 10, 10, _color, 10);
-
-            for (var i = 1; i < _path.Count; i++)
-            {
-                spriteBatch.DrawLine(_path[i-1] * tileSizeVector, _path[i] * tileSizeVector, _color, _thickness);
-            }
-
+            spriteBatch.DrawCircle(_target * tileSizeVector, 20, 20, _color, 3);
         }
 
         public void Update(GameTime gameTime, Player player)
         {
             var nextTarget = _director.GetTargetNode(gameTime, this, player);
-            var prevDir = Direction;
 
-            if (_target != nextTarget)
-            {
-                _path.Clear();
-                _target = nextTarget;
-                _path = _pathFinder.FindPath(NextNode, _target, Direction);
-                _currentPathStep = 1;
-                Direction = NextNode - _startPos;
-            }
+            _target = nextTarget;
 
             var travelDistance = SPEED * gameTime.GetElapsedSeconds();
 
@@ -77,23 +52,29 @@ namespace Pacman
             if (distanceToNextNode <= travelDistance)
             {
                 travelDistance -= distanceToNextNode;
-                Position = _startPos = NextNode;
 
-                if (_currentPathStep >= _path.Count)
+                Position = NextNode;
+
+                var nextNodeOptions = _graph.Adjacent(Position).Where(x => Position - x != Direction).ToList();
+
+                if (nextNodeOptions.Any() == false)
                 {
-                    var adj = _graph.Adjacent(Position).ToList();
-                    NextNode = adj.Contains(Position + Direction) ? Position + Direction : adj.First();
-                    Direction = NextNode - Position;
+                    Direction = Vector2.Negate(Direction);
+                    NextNode = Position + Direction;
+                }
+                else if (nextNodeOptions.Count > 1)
+                {
+                    NextNode = nextNodeOptions.OrderBy(pos => Vector2.Distance(pos, _target)).First();
                 }
                 else
                 {
-                    NextNode = _path[_currentPathStep++];
-                    Direction = NextNode - _startPos;
+                    NextNode = nextNodeOptions.First();
                 }
+
+                Direction = NextNode - Position;
             }
 
             Position += Direction * new Vector2(travelDistance);
         }
-
     }
 }

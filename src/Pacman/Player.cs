@@ -71,11 +71,11 @@ namespace Pacman
                 {
                     Position = _startPos = _graph.PortalTo(Position, Direction);
                 }
-                else if (_graph.HasAdjacent(Position, _nextDirection, true))
+                else if (_graph.HasAdjacent(Position, _nextDirection))
                 {
                     Direction = _nextDirection;
                 } 
-                else if (!_graph.HasAdjacent(Position, Direction, true))
+                else if (!_graph.HasAdjacent(Position, Direction))
                 {
                     Direction = _nextDirection = Directions.Stopped;
                 }
@@ -113,7 +113,7 @@ namespace Pacman
 
             if (Direction != Directions.Stopped) return;
 
-            if (!_graph.HasAdjacent(Position, _nextDirection, true)) return;
+            if (!_graph.HasAdjacent(Position, _nextDirection)) return;
 
             Direction = _nextDirection;
             _startPos = Position;

@@ -43,18 +43,18 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Ghosts\BlueGhostDirector.cs" />
     <Compile Include="Directions.cs" />
     <Compile Include="GameMain.cs" />
     <Compile Include="GameServices.cs" />
     <Compile Include="GameLevel.cs" />
-    <Compile Include="Ghost.cs" />
-    <Compile Include="PinkGhostDirector.cs" />
-    <Compile Include="RedGhostDirector.cs" />
+    <Compile Include="Ghosts\Ghost.cs" />
+    <Compile Include="Ghosts\PinkGhostDirector.cs" />
+    <Compile Include="Ghosts\RedGhostDirector.cs" />
     <Compile Include="IGhostDirector.cs" />
     <Compile Include="LevelGraph.cs" />
     <Compile Include="LevelLoader.cs" />
     <Compile Include="LevelTile.cs" />
-    <Compile Include="PathFinder.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
