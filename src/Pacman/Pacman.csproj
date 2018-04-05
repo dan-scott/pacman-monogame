@@ -48,6 +48,9 @@
     <Compile Include="GameServices.cs" />
     <Compile Include="GameLevel.cs" />
     <Compile Include="Ghost.cs" />
+    <Compile Include="PinkGhostDirector.cs" />
+    <Compile Include="RedGhostDirector.cs" />
+    <Compile Include="IGhostDirector.cs" />
     <Compile Include="LevelGraph.cs" />
     <Compile Include="LevelLoader.cs" />
     <Compile Include="LevelTile.cs" />

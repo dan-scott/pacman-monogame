@@ -12,73 +12,87 @@ namespace Pacman
     public class Ghost
     {
         private Vector2 _startPos;
-        private Vector2 _destPos;
-        private Vector2 _position;
         private Vector2 _target;
         private List<Vector2> _path;
         private LevelGraph _graph;
-        private Vector2 _direction;
-        private PathFinder _pathFinder;
+        private readonly IGhostDirector _director;
+        private readonly Color _color;
+        private readonly int _thickness;
+        private readonly PathFinder _pathFinder;
         private int _currentPathStep;
         private const float SPEED = 8f;
 
-        public Ghost(LevelGraph graph)
+        public Vector2 Position { get; private set; }
+        public Vector2 Direction { get; private set; }
+        public Vector2 NextNode { get; private set; }
+
+
+        public Ghost(LevelGraph graph, IGhostDirector director, Color color, int thickness)
         {
             _graph = graph;
+            _director = director;
+            _color = color;
+            _thickness = thickness;
             _path = new List<Vector2>();
             _pathFinder = new PathFinder(graph);
         }
 
-        public void Reset(Vector2 startPos)
+
+        public void Reset()
         {
-            _position = _startPos = _destPos = startPos;
-            _direction = Directions.Stopped;
+            Position = _startPos = NextNode = _director.StartPos;
+            Direction = Directions.Stopped;
         }
 
         public void Draw(SpriteBatch spriteBatch, Vector2 tileSizeVector)
         {
-            var pos = _position * tileSizeVector;
-            spriteBatch.DrawCircle(pos, 10, 10, Color.Red, 10);
+            var pos = Position * tileSizeVector;
+            spriteBatch.DrawCircle(pos, 10, 10, _color, 10);
 
             for (var i = 1; i < _path.Count; i++)
             {
-                spriteBatch.DrawLine(_path[i-1] * tileSizeVector, _path[i] * tileSizeVector, Color.Green, 4);
+                spriteBatch.DrawLine(_path[i-1] * tileSizeVector, _path[i] * tileSizeVector, _color, _thickness);
             }
 
         }
 
         public void Update(GameTime gameTime, Player player)
         {
-            if (_target != player.Destination)
+            var nextTarget = _director.GetTargetNode(gameTime, this, player);
+            var prevDir = Direction;
+
+            if (_target != nextTarget)
             {
                 _path.Clear();
-                _target = player.Destination;
-                _path = _pathFinder.FindPath(_destPos, _target);
+                _target = nextTarget;
+                _path = _pathFinder.FindPath(NextNode, _target, Direction);
                 _currentPathStep = 1;
-                _direction = _destPos - _startPos;
+                Direction = NextNode - _startPos;
             }
 
             var travelDistance = SPEED * gameTime.GetElapsedSeconds();
 
-            var distanceToNextNode = Vector2.Distance(_destPos, _position);
+            var distanceToNextNode = Vector2.Distance(NextNode, Position);
 
             if (distanceToNextNode <= travelDistance)
             {
                 travelDistance -= distanceToNextNode;
-                _position = _startPos =_destPos;
+                Position = _startPos = NextNode;
+
                 if (_currentPathStep >= _path.Count)
                 {
-                    _direction = Directions.Stopped;
-                    _destPos = _position;
+                    var adj = _graph.Adjacent(Position).ToList();
+                    NextNode = adj.Contains(Position + Direction) ? Position + Direction : adj.First();
+                    Direction = NextNode - Position;
                 }
                 else
                 {
-                    _destPos = _path[_currentPathStep++];
-                    _direction = _destPos - _startPos;
+                    NextNode = _path[_currentPathStep++];
+                    Direction = NextNode - _startPos;
                 }
             }
 
-            _position += _direction * new Vector2(travelDistance);
+            Position += Direction * new Vector2(travelDistance);
         }
 
     }

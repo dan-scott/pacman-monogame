@@ -26,19 +26,13 @@ namespace Pacman
             LevelTile.GhostSpawn,
         };
 
-        private static readonly Vector2[] Adj =
-        {
-            Directions.Down,
-            Directions.Left,
-            Directions.Right,
-            Directions.Up,
-        };
-
         private readonly TileGrid _pathGrid;
         private Vector2 _bottomRight;
         private Vector2 _topLeft;
 
         public IEnumerable<Vector2> Nodes => _nodes.Keys;
+
+        public bool ContainsNode(Vector2 node) => _nodes.ContainsKey(node);
 
         public LevelGraph(TileGrid grid)
         {
@@ -96,5 +90,10 @@ namespace Pacman
         }
 
         private bool GhostOnly(Vector2 next) => GhostOnlyTypes.Contains(_pathGrid[next]);
+
+        public Vector2 Closest(Vector2 target)
+        {
+            return _nodes.Keys.OrderBy(node => Vector2.Distance(target, node)).First();
+        }
     }
 }

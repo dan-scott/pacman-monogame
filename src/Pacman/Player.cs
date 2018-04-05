@@ -10,11 +10,11 @@ namespace Pacman
     {
         private readonly LevelGraph _graph;
         private const float SPEED = 8f;
-        private Vector2 _currentDirection;
         private Vector2 _nextDirection;
         private Vector2 _startPos;
         public Vector2 Position { get; private set; }
-        public Vector2 Destination { get; private set; }
+        public Vector2 NextNode { get; private set; }
+        public Vector2 Direction { get; private set; }
 
         public Player(LevelGraph graph)
         {
@@ -24,9 +24,9 @@ namespace Pacman
 
         public void Reset(Vector2 startPos)
         {
-            _currentDirection = Directions.Stopped;
+            Direction = Directions.Stopped;
             _nextDirection = Directions.Stopped;
-            Position = startPos;
+            Position = NextNode = startPos;
         }
 
         public void Draw(SpriteBatch spriteBatch, Vector2 tileSizeVector)
@@ -44,48 +44,48 @@ namespace Pacman
 
         private void MovePlayer(GameTime gameTime)
         {
-            if (_currentDirection == Directions.Stopped)
+            if (Direction == Directions.Stopped)
             {
                 return;
             }
 
-            if (_nextDirection == Vector2.Negate(_currentDirection))
+            if (_nextDirection == Vector2.Negate(Direction))
             {
-                _currentDirection = _nextDirection;
+                Direction = _nextDirection;
                 var tmp = _startPos;
-                _startPos = Destination;
-                Destination = tmp;
+                _startPos = NextNode;
+                NextNode = tmp;
             }
 
             var travelDistance = SPEED * gameTime.GetElapsedSeconds();
 
-            var remaining = Vector2.Distance(Position, Destination);
+            var remaining = Vector2.Distance(Position, NextNode);
 
             if (travelDistance >= remaining)
             {
                 travelDistance -= remaining;
 
-                Position = _startPos = Destination;
+                Position = _startPos = NextNode;
 
-                if (_graph.IsPortal(Position, _currentDirection))
+                if (_graph.IsPortal(Position, Direction))
                 {
-                    Position = _startPos = _graph.PortalTo(Position, _currentDirection);
+                    Position = _startPos = _graph.PortalTo(Position, Direction);
                 }
                 else if (_graph.HasAdjacent(Position, _nextDirection, true))
                 {
-                    _currentDirection = _nextDirection;
+                    Direction = _nextDirection;
                 } 
-                else if (!_graph.HasAdjacent(Position, _currentDirection, true))
+                else if (!_graph.HasAdjacent(Position, Direction, true))
                 {
-                    _currentDirection = _nextDirection = Directions.Stopped;
+                    Direction = _nextDirection = Directions.Stopped;
                 }
 
-                Destination = _startPos + _currentDirection;
+                NextNode = _startPos + Direction;
 
             }
 
 
-            Position += _currentDirection * new Vector2(travelDistance);
+            Position += Direction * new Vector2(travelDistance);
         }
 
         private void HandleInput()
@@ -111,13 +111,13 @@ namespace Pacman
                 _nextDirection = Directions.Right;
             }
 
-            if (_currentDirection != Directions.Stopped) return;
+            if (Direction != Directions.Stopped) return;
 
             if (!_graph.HasAdjacent(Position, _nextDirection, true)) return;
 
-            _currentDirection = _nextDirection;
+            Direction = _nextDirection;
             _startPos = Position;
-            Destination = Position + _nextDirection;
+            NextNode = Position + _nextDirection;
         }
 
         public void LoadContent()

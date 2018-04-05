@@ -16,7 +16,7 @@ namespace Pacman
             _graph = graph;
         }
 
-        public List<Vector2> FindPath(Vector2 start, Vector2 end)
+        public List<Vector2> FindPath(Vector2 start, Vector2 end, Vector2 currentDirection)
         {
             var cameFrom = new Dictionary<Vector2, Vector2>();
 
@@ -32,12 +32,20 @@ namespace Pacman
             while (frontier.Count > 0)
             {
                 var current = frontier.Dequeue();
+
                 if (current == end)
                 {
                     break;
                 }
 
-                foreach (var next in _graph.Adjacent(current))
+                var adjacentNodes = _graph.Adjacent(current);
+
+                if (current == start)
+                {
+                    adjacentNodes = adjacentNodes.Where(node => node + currentDirection != start);
+                }
+
+                foreach (var next in adjacentNodes)
                 {
                     var newCost = costSoFar[current] + 1;
 
@@ -56,7 +64,13 @@ namespace Pacman
 
         private List<Vector2> Path(Vector2 start, Vector2 end, Dictionary<Vector2, Vector2> cameFrom)
         {
+            if (!cameFrom.ContainsKey(end))
+            {
+                return new List<Vector2>();
+            }
+
             var dirList = new List<Vector2> { end };
+
 
             var current = cameFrom[end];
 
