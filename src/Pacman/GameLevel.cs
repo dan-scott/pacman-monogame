@@ -32,12 +32,14 @@ namespace Pacman
 
             _ghosts = new List<Ghost>
             {
-                new Ghost(graph, new RedGhostDirector(), Color.Red, 4),
-                new Ghost(graph, new PinkGhostDirector(graph), Color.Pink, 3),
-                new Ghost(graph, new BlueGhostDirector(graph), Color.Blue, 2)
+                Ghost.Red(graph),
+                Ghost.Blue(graph),
+                Ghost.Pink(graph),
+                Ghost.Orange(graph),
             };
 
             _ghosts.ForEach(ghost => ghost.Reset());
+            
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)

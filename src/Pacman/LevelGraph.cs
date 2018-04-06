@@ -18,7 +18,6 @@ namespace Pacman
             LevelTile.Start,
         };
 
-        private readonly TileGrid _pathGrid;
         private Vector2 _bottomRight;
         private Vector2 _topLeft;
 
@@ -28,14 +27,14 @@ namespace Pacman
 
         public LevelGraph(TileGrid grid)
         {
-            _pathGrid = grid.Filter(PathTileTypes);
+            var pathGrid = grid.Filter(PathTileTypes);
 
             var gridPositions = grid.AsEnumerable().Select(x => x.Item1).ToList();
 
             _topLeft = new Vector2(gridPositions.Min(x => x.X), gridPositions.Min(x => x.Y));
             _bottomRight = new Vector2(gridPositions.Max(x => x.X), gridPositions.Max(x => x.Y));
 
-            var positions = _pathGrid.AsEnumerable().Select(x => x.Item1).ToList();
+            var positions = pathGrid.AsEnumerable().Select(x => x.Item1).ToList();
 
             var byX = positions.ToLookup(pos => pos.X);
             var byY = positions.ToLookup(pos => pos.Y);
@@ -81,9 +80,5 @@ namespace Pacman
                 : new Vector2(pos.X, _topLeft.Y);
         }
 
-        public Vector2 Closest(Vector2 target)
-        {
-            return _nodes.Keys.OrderBy(node => Vector2.Distance(target, node)).First();
-        }
     }
 }

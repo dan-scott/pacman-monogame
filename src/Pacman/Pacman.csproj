@@ -43,15 +43,17 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Ghosts\BlueGhostDirector.cs" />
+    <Compile Include="Ghosts\BlueGhostTargetPicker.cs" />
     <Compile Include="Directions.cs" />
     <Compile Include="GameMain.cs" />
     <Compile Include="GameServices.cs" />
     <Compile Include="GameLevel.cs" />
     <Compile Include="Ghosts\Ghost.cs" />
-    <Compile Include="Ghosts\PinkGhostDirector.cs" />
-    <Compile Include="Ghosts\RedGhostDirector.cs" />
-    <Compile Include="IGhostDirector.cs" />
+    <Compile Include="Ghosts\OrangeGhostTargetPicker.cs" />
+    <Compile Include="Ghosts\PinkGhostTargetPicker.cs" />
+    <Compile Include="Ghosts\RedGhostTargetPicker.cs" />
+    <Compile Include="Ghosts\ScatterHandler.cs" />
+    <Compile Include="Ghosts\IGhostTargetPicker.cs" />
     <Compile Include="LevelGraph.cs" />
     <Compile Include="LevelLoader.cs" />
     <Compile Include="LevelTile.cs" />

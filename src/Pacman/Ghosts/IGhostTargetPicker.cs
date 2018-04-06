@@ -1,12 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Pacman.Ghosts;
 
-namespace Pacman
+namespace Pacman.Ghosts
 {
-    public interface IGhostDirector
+    public interface IGhostTargetPicker
     {
-        Vector2 StartPos { get; }
-
         Vector2 GetTargetNode(GameTime time, Ghost ghost, Player player);
     }
 }

@@ -12,6 +12,7 @@ namespace Pacman
         private const float SPEED = 8f;
         private Vector2 _nextDirection;
         private Vector2 _startPos;
+        private readonly SpriteFont _font;
         public Vector2 Position { get; private set; }
         public Vector2 NextNode { get; private set; }
         public Vector2 Direction { get; private set; }
@@ -19,6 +20,8 @@ namespace Pacman
         public Player(LevelGraph graph)
         {
             _graph = graph;
+
+            _font = GameServices.GetService<ContentManager>().Load<SpriteFont>("Fonts/Arial");
         }
 
 
@@ -33,6 +36,7 @@ namespace Pacman
         {
             var pos = Position * tileSizeVector;
             spriteBatch.DrawCircle(pos, 10, 10, Color.Yellow, 10);
+            spriteBatch.DrawString(_font, NextNode.ToString(), new Vector2(-100, -20), Color.Red);
         }
 
         public void Update(GameTime gameTime)
