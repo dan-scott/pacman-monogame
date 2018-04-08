@@ -8,19 +8,6 @@ namespace Pacman
 {
     public class LevelLoader
     {
-
-        private static readonly Dictionary<char,LevelTile> TileMap = new Dictionary<char, LevelTile>
-        {
-            [' '] = LevelTile.Path,
-            ['*'] = LevelTile.Dot,
-            ['-'] = LevelTile.GhostEntrance,
-            ['|'] = LevelTile.GhostSpawn,
-            ['#'] = LevelTile.GhostWall,
-            ['+'] = LevelTile.PowerPellet,
-            ['@'] = LevelTile.Start,
-            ['0'] = LevelTile.Wall,
-        };
-
         
         public int Width { get; set; }
 
@@ -28,7 +15,6 @@ namespace Pacman
 
         public SpriteGrid Sprites { get; private set; }
         public TileGrid AllTiles { get; private set; }
-        public TileGrid Dots { get; private set; }
         public LevelGraph Graph { get; private set; }
 
 
@@ -52,8 +38,6 @@ namespace Pacman
             AllTiles = new TileGrid(tileCodes);
 
             Sprites = new SpriteGrid(tileCodes);
-
-            Dots = AllTiles.Filter(LevelTile.PowerPellet, LevelTile.Dot);
 
             Graph = new LevelGraph(AllTiles);
         }

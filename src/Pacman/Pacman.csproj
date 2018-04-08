@@ -54,6 +54,7 @@
     <Compile Include="Ghosts\RedGhostTargetPicker.cs" />
     <Compile Include="Ghosts\ScatterHandler.cs" />
     <Compile Include="Ghosts\IGhostTargetPicker.cs" />
+    <Compile Include="LevelDots.cs" />
     <Compile Include="LevelGraph.cs" />
     <Compile Include="LevelLoader.cs" />
     <Compile Include="LevelTile.cs" />
