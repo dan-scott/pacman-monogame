@@ -1,18 +1,34 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.TextureAtlases;
 
 namespace Pacman
 {
     public class Player
     {
+        private static readonly List<Rectangle> Frames = new List<Rectangle>
+        {
+            new Rectangle(0, 0, 32, 32),
+            new Rectangle(32, 0, 32, 32),
+            new Rectangle(64, 0, 32, 32),
+            new Rectangle(96, 0, 32, 32),
+            new Rectangle(128, 0, 32, 32),
+            new Rectangle(96, 0, 32, 32),
+            new Rectangle(64, 0, 32, 32),
+            new Rectangle(32, 0, 32, 32),
+            new Rectangle(0, 0, 32, 32),
+        };
+
         private readonly LevelGraph _graph;
         private const float SPEED = 8f;
         private Vector2 _nextDirection;
         private Vector2 _startPos;
         private readonly SpriteFont _font;
+        private readonly AnimatedSprite _pacmanSprite;
 
         public const int RADIUS = 10;
 
@@ -24,7 +40,11 @@ namespace Pacman
         {
             _graph = graph;
 
-            _font = GameServices.GetService<ContentManager>().Load<SpriteFont>("Fonts/Arial");
+            var cm = GameServices.GetService<ContentManager>();
+
+            _font = cm.Load<SpriteFont>("Fonts/Arial");
+
+            _pacmanSprite = new AnimatedSprite("pacman", Frames, 0.05f);
         }
 
 
@@ -37,9 +57,49 @@ namespace Pacman
 
         public void Draw(SpriteBatch spriteBatch, Vector2 tileSizeVector)
         {
-            var pos = Position * tileSizeVector;
-            spriteBatch.DrawCircle(pos, RADIUS, RADIUS, Color.Yellow, RADIUS);
-            spriteBatch.DrawString(_font, NextNode.ToString(), new Vector2(-100, -20), Color.Red);
+            var translation = Globals.DefaultTranslation;
+
+            var rotation = 0f;
+
+            if (Direction == Directions.Down)
+            {
+                rotation = 90;
+            }
+            else if (Direction == Directions.Left)
+            {
+                rotation = 180;
+            }
+            else if (Direction == Directions.Up)
+            {
+                rotation = 270;
+            }
+
+            if (rotation > 0)
+            {
+                translation = Matrix.CreateTranslation(-16, -16, 0);
+                translation *= Matrix.CreateRotationZ(MathHelper.ToRadians(rotation));
+                translation *= Matrix.CreateTranslation(16, 16, 0);
+                translation *= Globals.DefaultTranslation;
+            }
+
+            translation *= Matrix.CreateScale(30, 30, 0);
+
+            var pos = Position * tileSizeVector - new Vector2(16);
+
+            translation *= Matrix.CreateTranslation(pos.X, pos.Y, 0);
+
+            spriteBatch.Begin(transformMatrix: translation);
+
+
+            _pacmanSprite.Draw(spriteBatch, Vector2.Zero);
+
+            spriteBatch.End();
+
+            spriteBatch.Begin();
+
+            spriteBatch.DrawString(_font, NextNode.ToString(), new Vector2(10, 20), Color.Red);
+
+            spriteBatch.End();
         }
 
         public void Update(GameTime gameTime)
@@ -47,6 +107,11 @@ namespace Pacman
             HandleInput();
 
             MovePlayer(gameTime);
+
+            if (Direction != Directions.Stopped)
+            {
+                _pacmanSprite.Update(gameTime);
+            }
         }
 
         private void MovePlayer(GameTime gameTime)
@@ -81,7 +146,7 @@ namespace Pacman
                 else if (_graph.HasAdjacent(Position, _nextDirection))
                 {
                     Direction = _nextDirection;
-                } 
+                }
                 else if (!_graph.HasAdjacent(Position, Direction))
                 {
                     Direction = _nextDirection = Directions.Stopped;

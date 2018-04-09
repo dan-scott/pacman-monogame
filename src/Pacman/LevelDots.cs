@@ -45,13 +45,22 @@ namespace Pacman
 
         public void Draw(SpriteBatch spriteBatch, Vector2 tileSize)
         {
+            spriteBatch.Begin(transformMatrix: Globals.DefaultTranslation);
+
             foreach (var (pos, type) in _currentLevelDots)
             {
                 var radius = type == LevelTile.Dot ? 3 : 6;
                 spriteBatch.DrawCircle(pos * tileSize, radius, 10, Color.Yellow, radius);
             }
 
-            spriteBatch.DrawString(_font, $"{_currentDotCount}/{_totalDotCount}", new Vector2(-100, 0), Color.Yellow);
+            spriteBatch.End();
+
+
+            spriteBatch.Begin();
+
+            spriteBatch.DrawString(_font, $"{_currentDotCount}/{_totalDotCount}", new Vector2(10, 40), Color.Yellow);
+
+            spriteBatch.End();
         }
     }
 }

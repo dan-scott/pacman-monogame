@@ -49,11 +49,15 @@ namespace Pacman
 
         public void Draw(SpriteBatch spriteBatch)
         {
+            spriteBatch.Begin(transformMatrix: Globals.DefaultTranslation);
+
             foreach (var (pos, tile) in _tiles.Where(x => _validCoords.Contains(x.Item2)))
             {
                 var coord = pos * TileSizeVector - TileOffsetVector;
                 spriteBatch.Draw(_textureAtlas[tile], coord, Color.White);
             }
+
+            spriteBatch.End();
         }
     }
 }

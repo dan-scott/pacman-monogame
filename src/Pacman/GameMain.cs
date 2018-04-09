@@ -44,11 +44,7 @@ namespace Pacman
 
             base.Draw(gameTime);
 
-            _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(140, 60, 0));
-
             _gameLevel.Draw(_spriteBatch, gameTime);
-
-            _spriteBatch.End();
         }
 
         protected override void Update(GameTime gameTime)
@@ -62,5 +58,10 @@ namespace Pacman
 
             _gameLevel.Update(gameTime);
         }
+    }
+
+    public static class Globals
+    {
+        public static readonly Matrix DefaultTranslation = Matrix.CreateTranslation(140, 60, 0);
     }
 }

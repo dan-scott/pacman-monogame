@@ -73,9 +73,13 @@ namespace Pacman.Ghosts
 
         public void Draw(SpriteBatch spriteBatch, Vector2 tileSizeVector)
         {
+            spriteBatch.Begin(transformMatrix: Globals.DefaultTranslation);
+
             var pos = Position * tileSizeVector;
             spriteBatch.DrawCircle(pos, 10, 10, _color, 10);
-            spriteBatch.DrawCircle(_target * tileSizeVector, 20, 20, _color, 3);
+//            spriteBatch.DrawCircle(_target * tileSizeVector, 20, 20, _color, 3);
+
+            spriteBatch.End();
         }
 
         public void Update(GameTime gameTime, Player player)
