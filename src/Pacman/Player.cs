@@ -82,7 +82,6 @@ namespace Pacman
                 translation *= Globals.DefaultTranslation;
             }
 
-            translation *= Matrix.CreateScale(30, 30, 0);
 
             var pos = Position * tileSizeVector - new Vector2(16);
 

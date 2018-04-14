@@ -55,9 +55,8 @@ namespace Pacman
             _currentFrame = (_currentFrame + 1) % _frameCount;
         }
 
-        public void Draw(SpriteBatch spriteBatch, Vector2 position)
+        public void Draw(SpriteBatch spriteBatch, Vector2 position, Color? color = null)
         {
-            spriteBatch.Draw(_atlas[_frameNames[_currentFrame]], position, Color.White);
-        }
+            spriteBatch.Draw(_atlas[_frameNames[_currentFrame]], position, color ?? Color.White);}
     }
 }

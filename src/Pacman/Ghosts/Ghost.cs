@@ -1,12 +1,29 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using MonoGame.Extended.TextureAtlases;
 
 namespace Pacman.Ghosts
 {
     public class Ghost
     {
+        private static readonly List<Rectangle> Frames = new List<Rectangle>
+        {
+            new Rectangle(0, 0, 32, 32),
+            new Rectangle(32, 0, 32, 32),
+        };
+
+        private static readonly Dictionary<string, Rectangle> Eyes = new Dictionary<string, Rectangle>
+        {
+            ["right"] = new Rectangle(64, 0, 32, 16),
+            ["left"] = new Rectangle(64, 16, 32, 16),
+            ["up"] = new Rectangle(96, 0, 32, 16),
+            ["down"] = new Rectangle(96, 16, 32, 16),
+        };
+
         private Vector2 _target;
         private LevelGraph _graph;
         private IGhostTargetPicker _targetPicker;
@@ -16,6 +33,8 @@ namespace Pacman.Ghosts
         private readonly ScatterHandler _scatterHandler;
         private bool _forceReverse;
         private bool _chaseMode;
+        private readonly AnimatedSprite _normalSprite;
+        private TextureAtlas _ghostSprites;
         private const float SPEED = 8f;
 
         public Vector2 Position { get; private set; }
@@ -26,6 +45,15 @@ namespace Pacman.Ghosts
         private Ghost()
         {
             _scatterHandler = new ScatterHandler();
+
+            var cm = GameServices.GetService<ContentManager>();
+
+            _normalSprite = new AnimatedSprite("ghost", Frames, 0.2f);
+
+            var ghostSheet = cm.Load<Texture2D>("ghost");
+
+            _ghostSprites = new TextureAtlas("ghost", ghostSheet, Eyes);
+
         }
 
         public static Ghost Red(LevelGraph graph) => new Ghost
@@ -73,17 +101,39 @@ namespace Pacman.Ghosts
 
         public void Draw(SpriteBatch spriteBatch, Vector2 tileSizeVector)
         {
-            spriteBatch.Begin(transformMatrix: Globals.DefaultTranslation);
+            var translation = Globals.DefaultTranslation;
 
-            var pos = Position * tileSizeVector;
-            spriteBatch.DrawCircle(pos, 10, 10, _color, 10);
-//            spriteBatch.DrawCircle(_target * tileSizeVector, 20, 20, _color, 3);
+            
+            var pos = Position * tileSizeVector - new Vector2(16);
+
+            translation *= Matrix.CreateTranslation(pos.X, pos.Y, 0);
+
+            spriteBatch.Begin(transformMatrix: translation);
+
+            _normalSprite.Draw(spriteBatch, Vector2.Zero, _color);
+
+            var eyedir = "left";
+
+            if (Direction == Directions.Right)
+            {
+                eyedir = "right";
+            } else if (Direction == Directions.Up)
+            {
+                eyedir = "up";
+            } else if (Direction == Directions.Down)
+            {
+                eyedir = "down";
+            }
+            
+            spriteBatch.Draw(_ghostSprites[eyedir], Vector2.Zero, Color.White);
 
             spriteBatch.End();
         }
 
         public void Update(GameTime gameTime, Player player)
         {
+            _normalSprite.Update(gameTime);
+
             _scatterHandler.Update(gameTime);
 
             (_chaseMode, _forceReverse) = _scatterHandler.GetMode();
